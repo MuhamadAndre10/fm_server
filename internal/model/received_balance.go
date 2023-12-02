@@ -13,6 +13,7 @@ type ReceivedBalance struct {
 	DateReceived time.Time `gorm:"size:50;not null"`
 	CreatedAt    time.Time `gorm:"autoCreateTime"`
 	UpdatedAt    time.Time `gorm:"autoUpdateTime"`
+	MitraID      string
 }
 
 func (u *ReceivedBalance) BeforeCreate(tx *gorm.DB) (err error) {

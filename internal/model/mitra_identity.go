@@ -7,13 +7,21 @@ import (
 )
 
 type MitraIdentity struct {
-	MitraID   string    `gorm:"<-create,primaryKey;size:50;not null;unique"`
-	FirstName string    `gorm:"size:50;not null"`
-	LastName  string    `gorm:"size:50;not null"`
-	Age       int       `gorm:"size:3;not null"`
-	DateBirth time.Time `gorm:"not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	MitraID           string              `gorm:"<-create,primaryKey;size:50;not null;unique"`
+	FirstName         string              `gorm:"size:50;not null"`
+	LastName          string              `gorm:"size:50;not null"`
+	Age               int                 `gorm:"size:3;not null"`
+	DateBirth         time.Time           `gorm:"not null"`
+	CreatedAt         time.Time           `gorm:"autoCreateTime"`
+	UpdatedAt         time.Time           `gorm:"autoUpdateTime"`
+	FastPay           []FastPay           `gorm:"foreignKey:MitraID"`
+	ReceivedBalance   []ReceivedBalance   `gorm:"foreignKey:MitraID"`
+	UnReceivedBalance []UnReceivedBalance `gorm:"foreignKey:MitraID"`
+	Address           Address             `gorm:"foreignKey:MitraID"`
+	Tier              Tier                `gorm:"foreignKey:MitraID"`
+	ReferralCode      ReferralCode        `gorm:"foreignKey:MitraID"`
+	PartnershipStatus PartnershipStatus   `gorm:"foreignKey:MitraID"`
+	UserID            string
 }
 
 func (u *MitraIdentity) BeforeCreate(tx *gorm.DB) (err error) {

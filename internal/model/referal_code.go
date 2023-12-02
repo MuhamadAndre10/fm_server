@@ -11,6 +11,7 @@ type ReferralCode struct {
 	Code      string    `gorm:"size:10;not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	MitraID   string
 }
 
 func (u *ReferralCode) BeforeCreate(tx *gorm.DB) (err error) {

@@ -14,6 +14,7 @@ type FastPay struct {
 	NumberShoppePay   string    `gorm:"size:14;not null"`
 	CreatedAt         time.Time `gorm:"autoCreateTime"`
 	UpdatedAt         time.Time `gorm:"autoUpdateTime"`
+	MitraID           string
 }
 
 func (u *FastPay) BeforeCreate(tx *gorm.DB) (err error) {

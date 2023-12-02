@@ -2,19 +2,20 @@ package database
 
 import (
 	"fmt"
+	log "github.com/andrepriyanto10/server_favaa/configs/logger"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
+	"sync"
 )
 
 type ConfigConn struct {
 	env *viper.Viper
-	log *log.Logger
+	log *log.Log
 }
 
-func NewConnection(env *viper.Viper, log *log.Logger) *ConfigConn {
+func NewConnection(env *viper.Viper, log *log.Log) *ConfigConn {
 	return &ConfigConn{
 		env, log,
 	}
@@ -38,25 +39,32 @@ func (c *ConfigConn) Open() *gorm.DB {
 		sslMode,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger:                 logger.Default.LogMode(logger.Error),
-		SkipDefaultTransaction: true,
-	})
-
-	if err != nil {
-		c.log.Fatalf("Error connecting to database: %v", err)
+	// make a pool connection
+	var pool sync.Pool
+	pool.New = func() any {
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger:                 logger.Default.LogMode(logger.Error),
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			c.log.ErrorLog.Println("Error connecting to database: ", err)
+			return nil
+		}
+		return db
 	}
 
-	c.log.Println("Database connection established successfully!")
+	db := pool.Get().(*gorm.DB)
 
-	c.log.Println("Migrating database...")
+	c.log.InfoLog.Println("Database connection established successfully!")
 
-	err = db.AutoMigrate()
+	c.log.InfoLog.Println("Migrating database...")
+
+	err := db.AutoMigrate()
 	if err != nil {
-		c.log.Fatalf("Error migrating database: %v", err)
+		c.log.ErrorLog.Fatalf("Error migrating database: %v", err)
 	}
 
-	c.log.Println("Database migrated successfully!")
+	c.log.InfoLog.Println("Database migrated successfully!")
 
 	return db
 }
