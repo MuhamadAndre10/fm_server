@@ -1,4 +1,12 @@
-INFO: 	2023/12/02 11:58:15 Logger initialized successfully!
-ERROR: 	2023/12/02 11:58:15 log.go:37: Logger initialized successfully!
-INFO: 	2023/12/02 12:02:47 Logger initialized successfully!
-ERROR: 	2023/12/02 12:02:47 log.go:37: Logger initialized successfully!
+
+INFO: 	2023/12/02 22:00:11 Logger initialized successfully!
+ERROR: 	2023/12/02 22:00:11 log.go:23: Logger initialized successfully!
+INFO: 	2023/12/02 22:01:30 Logger initialized successfully!
+ERROR: 	2023/12/02 22:01:30 log.go:23: Logger initialized successfully!
+INFO: 	2023/12/02 22:02:06 Logger initialized successfully!
+ERROR: 	2023/12/02 22:02:06 log.go:23: Logger initialized successfully!
+INFO: 	2023/12/02 22:02:06 Testtt...........
+INFO: 	2023/12/02 22:02:06 Database connection established successfully!
+INFO: 	2023/12/02 22:02:06 Migrating database...
+INFO: 	2023/12/02 22:02:06 Database migrated successfully!
+INFO: 	2023/12/02 22:07:39 Shutting down server...
