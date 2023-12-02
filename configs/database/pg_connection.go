@@ -55,6 +55,16 @@ func (c *ConfigConn) Open() *gorm.DB {
 
 	db := pool.Get().(*gorm.DB)
 
+	if db == nil {
+		c.log.ErrorLog.Fatal("Error connecting to database")
+	}
+
+	defer func() {
+		if db != nil {
+			pool.Put(db)
+		}
+	}()
+
 	c.log.InfoLog.Println("Database connection established successfully!")
 
 	c.log.InfoLog.Println("Migrating database...")

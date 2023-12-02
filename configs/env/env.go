@@ -2,7 +2,6 @@ package env
 
 import (
 	"github.com/spf13/viper"
-	"log"
 )
 
 func LoadEnv(name string, path string) *viper.Viper {
@@ -14,7 +13,7 @@ func LoadEnv(name string, path string) *viper.Viper {
 
 	err := env.ReadInConfig()
 	if err != nil {
-		log.Panicf("Error loading config file: %s", err)
+		panic("Failed to load configuration")
 	}
 
 	return env

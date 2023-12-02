@@ -25,14 +25,7 @@ func NewLogger() *Log {
 
 	infoLog := log.New(file, "INFO: \t", log.Ldate|log.Ltime)
 	errorLog := log.New(file, "ERROR: \t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// handle panic
-	defer func(log *log.Logger) {
-		if err := recover(); err != nil {
-			log.Printf("Panic: %v", err)
-		}
-	}(infoLog)
-
+	
 	infoLog.Println("Logger initialized successfully!")
 	errorLog.Println("Logger initialized successfully!")
 
