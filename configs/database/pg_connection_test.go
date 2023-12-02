@@ -2,11 +2,10 @@ package database
 
 import (
 	"github.com/andrepriyanto10/server_favaa/configs/env"
+	log "github.com/andrepriyanto10/server_favaa/configs/logger"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -14,7 +13,7 @@ import (
 func TestConfigConn_Open(t *testing.T) {
 	type fields struct {
 		env *viper.Viper
-		log *log.Logger
+		log *log.Log
 	}
 	tests := []struct {
 		name   string
@@ -25,7 +24,7 @@ func TestConfigConn_Open(t *testing.T) {
 			name: "Test Open Connection",
 			fields: fields{
 				env: env.LoadEnv("config", "../../"),
-				log: log.New(os.Stdout, "TEST: ", log.Lshortfile|log.Ldate|log.Ltime),
+				log: log.NewLogger(),
 			},
 			want: &gorm.DB{},
 		},

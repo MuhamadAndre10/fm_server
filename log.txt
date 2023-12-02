@@ -1,2 +1,4 @@
 INFO: 	2023/12/02 11:58:15 Logger initialized successfully!
 ERROR: 	2023/12/02 11:58:15 log.go:37: Logger initialized successfully!
+INFO: 	2023/12/02 12:02:47 Logger initialized successfully!
+ERROR: 	2023/12/02 12:02:47 log.go:37: Logger initialized successfully!
