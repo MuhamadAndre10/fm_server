@@ -8,7 +8,7 @@ type ErrResponse struct {
 	Value string `json:"value,omitempty"`
 }
 
-func NewValidate(req any) []*ErrResponse {
+func Validate(req any) []*ErrResponse {
 	var errors []*ErrResponse
 	validate := validator.New()
 

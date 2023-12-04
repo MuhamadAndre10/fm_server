@@ -13,19 +13,18 @@ func New(c *fiber.Ctx) *Response {
 	}
 }
 
-func (r Response) Success(message string, statusCode int, length int, data any) error {
+func (r Response) Success(message string, statusCode int, data any) error {
 	return r.c.Status(statusCode).JSON(fiber.Map{
 		"message": message,
-		"length":  length,
 		"data":    data,
 	})
 }
 
-//func (r Response) Error(message string, statusCode int) error {
-//	return r.c.Status(statusCode).JSON(fiber.Map{
-//		"message": message,
-//	})
-//}
+func (r Response) Error(message any, statusCode int) error {
+	return r.c.Status(statusCode).JSON(fiber.Map{
+		"message": message,
+	})
+}
 
 func (r Response) NotFound(message string) error {
 	return r.c.Status(fiber.StatusNotFound).JSON(fiber.Map{
