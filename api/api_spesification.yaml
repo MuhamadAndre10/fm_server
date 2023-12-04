@@ -9,40 +9,91 @@ servers:
   - url: 'https//favaa-mitra_server.com/api/v1'
     description: Production mitra_server
 paths:
-  /register":
-    description:
+    /register:
+      description: "Register user"
+      post:
+        requestBody:
+          $ref: '#/components/requestBodies/RegisterRequest'
+        responses:
+
+
+
+
+
+
 
 components:
   schemas:
-    User:
-      type: object
+    RegisterSuccessRes:
+      description: Register success
+      type: array
       properties:
-        id:
-          type: string
-          required: true
-
-        name:
-          type: string
         email:
           type: string
-        password:
+        number_phone:
           type: string
+          maximum: 20
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
-      description: user schemas
-  examples:
-    User:
-      value:
-        id: 1
-        name: "John Doe"
-        email: "asdfasf@gmail.com"
-        password: "123456"
-        created_at: "2021-01-01 00:00:00"
-        updated_at: "2021-01-01 00:00:00"
+    RegisterRequest:
+      description: Register request
+      type: array
+      properties:
+        full_name:
+          type: string
+          required: true
+        email:
+          type: string
+          uniqueItems: true
+          required: true
+        number_phone:
+          type: string
+          required: true
+          uniqueItems: true
+        password:
+          type: string
+          required: true
+    VerificationCodeRequest:
+      description: Get the Verification code to register
+      type: array
+      properties:
+        email:
+          type: string
+          required: true
+          uniqueItems: true
+    VerificationCodeRes:
+      description: Response from get the verification code
+      type: array
+      properties:
+        message:
+          type: string
+    GeneralError:
+      description: General error
+      type: array
+      properties:
+        message:
+          type: string
+        errors:
+          type: string
+    GeneralSuccess:
+      description: General success
+      type: array
+      properties:
+        message:
+          type: string
+        data:
+          type: array
+  requestBodies:
+    RegisterRequest:
+      description: Register request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RegisterRequest'
 
 
 

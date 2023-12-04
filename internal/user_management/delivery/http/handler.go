@@ -16,3 +16,7 @@ func NewUMHandler(userService user_management.UserContractService, app *fiber.Ap
 		app:         app,
 	}
 }
+
+func (h *UserHandler) Register(c *fiber.Ctx) error {
+	panic("implement me")
+}
