@@ -21,11 +21,11 @@ func (r Response) Success(message string, statusCode int, length int, data any) 
 	})
 }
 
-func (r Response) Error(message string, statusCode int) error {
-	return r.c.Status(statusCode).JSON(fiber.Map{
-		"message": message,
-	})
-}
+//func (r Response) Error(message string, statusCode int) error {
+//	return r.c.Status(statusCode).JSON(fiber.Map{
+//		"message": message,
+//	})
+//}
 
 func (r Response) NotFound(message string) error {
 	return r.c.Status(fiber.StatusNotFound).JSON(fiber.Map{
