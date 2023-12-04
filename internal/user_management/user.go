@@ -10,3 +10,7 @@ type UserRegisterResponse struct {
 	FullName string `json:"full_name,omitempty"`
 	Email    string `json:"email,omitempty"`
 }
+
+type UserVerifyRequest struct {
+	Code string `json:"code,omitempty" validate:"required"`
+}
