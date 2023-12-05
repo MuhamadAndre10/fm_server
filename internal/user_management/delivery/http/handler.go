@@ -1,11 +1,15 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/allegro/bigcache/v3"
 	"github.com/andrepriyanto10/server_favaa/configs/logger"
 	"github.com/andrepriyanto10/server_favaa/internal/user_management"
+	"github.com/andrepriyanto10/server_favaa/pkg/cache"
 	"github.com/andrepriyanto10/server_favaa/utils"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 type UserHandler struct {
@@ -46,17 +50,46 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 
 	code := utils.CodeVerification()
 
-	err = h.userService.Register(&registerRequest, &code)
+	err = h.userService.Register(c.Context(), &registerRequest, &code)
 	if err != nil {
 		h.log.InfoLog.Println(fmt.Sprintf("Error when register user: %v", err))
 		return utils.New(c).InternalServerError(err.Error())
 	}
 
+	bigCache, err := bigcache.New(c.Context(), bigcache.DefaultConfig(5*time.Minute))
+	if err != nil {
+		return err
+	}
+
+	newDataCache := struct {
+		Email     string
+		Code      *string
+		ExpiredAt time.Time
+	}{
+		Email:     registerRequest.Email,
+		Code:      &code,
+		ExpiredAt: time.Now().Add(60 * time.Second),
+	}
+
+	dataByte, err := json.Marshal(newDataCache)
+	if err != nil {
+		return err
+	}
+
+	dataCache := cache.NewDataCache(bigCache)
+
+	err = dataCache.Set("user", dataByte)
+	if err != nil {
+		return err
+	}
+
+	cache.NewCache(dataCache)
+
 	data := struct {
 		Name string
 		Code *string
 	}{
-		Name: registerRequest.FullName,
+		Name: registerRequest.FirstName,
 		Code: &code,
 	}
 
@@ -82,6 +115,12 @@ func (h *UserHandler) VerifyUser(c *fiber.Ctx) error {
 		return utils.New(c).MethodNotAllowed("Method not allowed")
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+			h.log.ErrorLog.Fatalf(fmt.Sprintf("Panic: %v", r))
+		}
+	}()
+
 	var code user_management.CodeRequest
 
 	err := c.BodyParser(&code)
@@ -94,11 +133,12 @@ func (h *UserHandler) VerifyUser(c *fiber.Ctx) error {
 		return utils.New(c).Error(validate, fiber.StatusBadRequest)
 	}
 
-	err = h.userService.VerifyUserRegister(&code)
+	err = h.userService.VerifyUserRegister(c.Context(), &code)
 	if err != nil {
+		h.log.ErrorLog.Println(fmt.Sprintf("Service Error: %v", err))
 		return utils.New(c).InternalServerError(err.Error())
 	}
 
-	panic("implement me")
+	return utils.New(c).Success("success", fiber.StatusOK, nil)
 
 }

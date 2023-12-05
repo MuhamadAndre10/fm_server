@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	log "github.com/andrepriyanto10/server_favaa/configs/logger"
+	"github.com/andrepriyanto10/server_favaa/internal/model"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -65,11 +66,36 @@ func (c *ConfigConn) Open() *gorm.DB {
 		}
 	}()
 
+	//err := db.Migrator().DropTable(
+	//	&model.User{},
+	//	&model.MitraIdentity{},
+	//	&model.Address{},
+	//	&model.FastPay{},
+	//	&model.ReferralCode{},
+	//	&model.ReceivedBalance{},
+	//	&model.UnReceivedBalance{},
+	//	&model.Tier{},
+	//	&model.PartnershipStatus{},
+	//)
+	//if err != nil {
+	//	c.log.ErrorLog.Fatalf("Error migrating database: %v", err)
+	//}
+
 	c.log.InfoLog.Println("Database connection established successfully!")
 
 	c.log.InfoLog.Println("Migrating database...")
 
-	err := db.AutoMigrate()
+	err := db.AutoMigrate(
+		&model.User{},
+		&model.MitraIdentity{},
+		&model.Address{},
+		&model.FastPay{},
+		&model.ReferralCode{},
+		&model.ReceivedBalance{},
+		&model.UnReceivedBalance{},
+		&model.Tier{},
+		&model.PartnershipStatus{},
+	)
 	if err != nil {
 		c.log.ErrorLog.Fatalf("Error migrating database: %v", err)
 	}

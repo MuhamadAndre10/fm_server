@@ -14,13 +14,13 @@ type MitraIdentity struct {
 	DateBirth         time.Time           `gorm:"not null"`
 	CreatedAt         time.Time           `gorm:"autoCreateTime"`
 	UpdatedAt         time.Time           `gorm:"autoUpdateTime"`
-	FastPay           []FastPay           `gorm:"foreignKey:MitraID"`
-	ReceivedBalance   []ReceivedBalance   `gorm:"foreignKey:MitraID"`
-	UnReceivedBalance []UnReceivedBalance `gorm:"foreignKey:MitraID"`
-	Address           Address             `gorm:"foreignKey:MitraID"`
-	Tier              Tier                `gorm:"foreignKey:MitraID"`
-	ReferralCode      ReferralCode        `gorm:"foreignKey:MitraID"`
-	PartnershipStatus PartnershipStatus   `gorm:"foreignKey:MitraID"`
+	FastPay           []FastPay           `gorm:"foreignKey:MitraID;references:MitraID"`
+	ReceivedBalance   []ReceivedBalance   `gorm:"foreignKey:MitraID;references:MitraID"`
+	UnReceivedBalance []UnReceivedBalance `gorm:"foreignKey:MitraID;references:MitraID"`
+	Address           Address             `gorm:"foreignKey:MitraID;references:MitraID"`
+	Tier              Tier                `gorm:"foreignKey:MitraID;references:MitraID"`
+	ReferralCode      ReferralCode        `gorm:"foreignKey:MitraID;references:MitraID"`
+	PartnershipStatus PartnershipStatus   `gorm:"foreignKey:MitraID;references:MitraID"`
 	UserID            string
 }
 

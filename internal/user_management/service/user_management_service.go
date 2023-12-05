@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"github.com/allegro/bigcache/v3"
+	"github.com/andrepriyanto10/server_favaa/internal/model"
 	"github.com/andrepriyanto10/server_favaa/internal/user_management"
 	"github.com/andrepriyanto10/server_favaa/pkg/cache"
 	"github.com/andrepriyanto10/server_favaa/utils"
@@ -23,8 +23,8 @@ func NewUserService(userRepo user_management.UserContractRepository) *UserServic
 	}
 }
 
-func (s *UserService) Register(req *user_management.UserRegisterRequest, code *string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
+func (s *UserService) Register(ctx context.Context, req *user_management.UserRegisterRequest, code *string) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
 	hashPassword, err := utils.HashPassword(req.Password)
@@ -34,30 +34,16 @@ func (s *UserService) Register(req *user_management.UserRegisterRequest, code *s
 
 	req.Password = hashPassword
 
-	// save data in cache
-	bigCache, err := bigcache.New(ctx, bigcache.DefaultConfig(5*time.Minute))
-	if err != nil {
-		return err
-	}
-
-	data := struct {
-		FullName string
-		Email    string
-		Password string
-		Code     *string
-	}{
-		FullName: req.FullName,
-		Email:    req.Email,
+	user := &model.User{
 		Password: req.Password,
-		Code:     code,
+		Email:    req.Email,
+		MitraIdentity: &model.MitraIdentity{
+			FirstName: req.FirstName,
+			LastName:  req.LastName,
+		},
 	}
 
-	dataByte, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	err = cache.NewDataCache(bigCache).Set("user", dataByte)
+	err = s.userRepo.StoreDataUser(ctx, user)
 	if err != nil {
 		return err
 	}
@@ -65,20 +51,39 @@ func (s *UserService) Register(req *user_management.UserRegisterRequest, code *s
 	return nil
 }
 
-func (s *UserService) VerifyUserRegister(code *user_management.CodeRequest) error {
-	data := cache.New()
+func (s *UserService) VerifyUserRegister(ctx context.Context, code *user_management.CodeRequest) error {
+	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
+	defer cancel()
 
-	get, err := data.Get("user")
+	getDataCache, err := cache.Cache.Get("user")
 	if err != nil {
-		return errors.WithMessage(err, "failed to get data from cache")
+		return errors.WithMessage(err, "failed to get data from dataCache")
 	}
 
-	var user user_management.UserRegisterRequest
-	err = json.Unmarshal(get, &user)
+	var data struct {
+		Email     string
+		Code      string
+		ExpiredAt time.Time
+	}
+
+	err = json.Unmarshal(getDataCache, &data)
 	if err != nil {
 		return err
 	}
 
-	panic("implement me")
+	if code.Code != data.Code {
+		return errors.New("code not match")
+	}
+
+	if time.Now().After(data.ExpiredAt) {
+		return errors.New("code expired")
+	}
+
+	err = s.userRepo.UpdateDataUser(ctx, &data.Email)
+	if err != nil {
+		return errors.WithMessage(err, "failed to store data user")
+	}
+
+	return nil
 
 }
