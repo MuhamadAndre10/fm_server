@@ -44,8 +44,9 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 		return utils.New(c).Error(validate, fiber.StatusBadRequest)
 	}
 
-	// call service
-	err = h.userService.Register(&registerRequest)
+	code := utils.CodeVerification()
+
+	err = h.userService.Register(&registerRequest, &code)
 	if err != nil {
 		h.log.InfoLog.Println(fmt.Sprintf("Error when register user: %v", err))
 		return utils.New(c).InternalServerError(err.Error())
@@ -53,10 +54,10 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 
 	data := struct {
 		Name string
-		Code string
+		Code *string
 	}{
 		Name: registerRequest.FullName,
-		Code: utils.CodeVerification(),
+		Code: &code,
 	}
 
 	dataTmplString, err := utils.ParseTemplate("public/template/email_tmpl.html", data)
@@ -74,4 +75,30 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	h.log.InfoLog.Println("Email sent")
 
 	return utils.New(c).Success("success", fiber.StatusOK, nil)
+}
+
+func (h *UserHandler) VerifyUser(c *fiber.Ctx) error {
+	if c.Method() != fiber.MethodPost {
+		return utils.New(c).MethodNotAllowed("Method not allowed")
+	}
+
+	var code user_management.CodeRequest
+
+	err := c.BodyParser(&code)
+	if err != nil {
+		return utils.New(c).BadRequest(err.Error())
+	}
+
+	validate := utils.Validate(code)
+	if validate != nil {
+		return utils.New(c).Error(validate, fiber.StatusBadRequest)
+	}
+
+	err = h.userService.VerifyUserRegister(&code)
+	if err != nil {
+		return utils.New(c).InternalServerError(err.Error())
+	}
+
+	panic("implement me")
+
 }

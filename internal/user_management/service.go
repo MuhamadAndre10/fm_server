@@ -2,8 +2,8 @@ package user_management
 
 // UserContractService is an interface that defines the contract of the user service
 type UserContractService interface {
-	Register(req *UserRegisterRequest) error
-	Verify(code *CodeRequest) error
+	Register(req *UserRegisterRequest, code *string) error
+	VerifyUserRegister(code *CodeRequest) error
 }
 
 // MailService is an interface that defines the contract of the mail service

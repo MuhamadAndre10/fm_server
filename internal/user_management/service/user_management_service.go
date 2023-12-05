@@ -23,7 +23,7 @@ func NewUserService(userRepo user_management.UserContractRepository) *UserServic
 	}
 }
 
-func (s *UserService) Register(req *user_management.UserRegisterRequest) error {
+func (s *UserService) Register(req *user_management.UserRegisterRequest, code *string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
 	defer cancel()
 
@@ -35,17 +35,29 @@ func (s *UserService) Register(req *user_management.UserRegisterRequest) error {
 	req.Password = hashPassword
 
 	// save data in cache
-	bigCache, err := bigcache.New(ctx, bigcache.DefaultConfig(10*time.Minute))
+	bigCache, err := bigcache.New(ctx, bigcache.DefaultConfig(5*time.Minute))
 	if err != nil {
 		return err
 	}
 
-	data, err := json.Marshal(req)
+	data := struct {
+		FullName string
+		Email    string
+		Password string
+		Code     *string
+	}{
+		FullName: req.FullName,
+		Email:    req.Email,
+		Password: req.Password,
+		Code:     code,
+	}
+
+	dataByte, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	err = cache.NewDataCache(bigCache).Set("user", data)
+	err = cache.NewDataCache(bigCache).Set("user", dataByte)
 	if err != nil {
 		return err
 	}
@@ -53,6 +65,20 @@ func (s *UserService) Register(req *user_management.UserRegisterRequest) error {
 	return nil
 }
 
-func (s *UserService) Verify(code *user_management.CodeRequest) error {
+func (s *UserService) VerifyUserRegister(code *user_management.CodeRequest) error {
+	data := cache.New()
+
+	get, err := data.Get("user")
+	if err != nil {
+		return errors.WithMessage(err, "failed to get data from cache")
+	}
+
+	var user user_management.UserRegisterRequest
+	err = json.Unmarshal(get, &user)
+	if err != nil {
+		return err
+	}
+
 	panic("implement me")
+
 }
