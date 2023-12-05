@@ -21,9 +21,6 @@ func NewLogger(path string) *Log {
 	infoLog := log.New(file, "INFO: \t", log.Ldate|log.Ltime)
 	errorLog := log.New(file, "ERROR: \t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	infoLog.Println("Logger initialized successfully!")
-	errorLog.Println("Logger initialized successfully!")
-
 	return &Log{
 		InfoLog:  infoLog,
 		ErrorLog: errorLog,

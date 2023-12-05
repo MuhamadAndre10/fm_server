@@ -11,6 +11,6 @@ type UserRegisterResponse struct {
 	Email    string `json:"email,omitempty"`
 }
 
-type UserVerifyRequest struct {
+type CodeRequest struct {
 	Code string `json:"code,omitempty" validate:"required"`
 }

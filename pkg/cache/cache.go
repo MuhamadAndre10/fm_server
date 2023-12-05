@@ -14,6 +14,10 @@ func NewDataCache(c *bigcache.BigCache) *DataCache {
 	}
 }
 
+func New() *DataCache {
+	return &DataCache{}
+}
+
 func NewCache(c *DataCache) {
 	Cache = c
 }

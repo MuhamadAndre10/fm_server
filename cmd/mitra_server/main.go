@@ -47,8 +47,9 @@ func main() {
 	repoUser := repository.NewUserRepository(conn)
 
 	serviceUser := service.NewUserService(repoUser)
+	mailService := service.NewMailService(loadEnv)
 
-	userHandler := handler.NewUMHandler(serviceUser, app)
+	userHandler := handler.NewUMHandler(app, customLog, serviceUser, mailService)
 
 	router.InitRouter(router.ConfigRouter{
 		App:         app,

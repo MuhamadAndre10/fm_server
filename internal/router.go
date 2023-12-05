@@ -21,6 +21,10 @@ func InitRouter(cfg ConfigRouter) {
 		return c.SendString("Hello, World 👋!")
 	})
 
+	micro.Route("/auth", func(router fiber.Router) {
+		router.Post("/register", cfg.UserHandler.Register)
+	})
+
 	micro.Use(func(c *fiber.Ctx) error {
 		path := c.Path() // => "/api/hello"
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

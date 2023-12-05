@@ -1,21 +1,26 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/andrepriyanto10/server_favaa/configs/logger"
 	"github.com/andrepriyanto10/server_favaa/internal/user_management"
 	"github.com/andrepriyanto10/server_favaa/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/pkg/errors"
 )
 
 type UserHandler struct {
-	userService user_management.UserContractService
 	app         *fiber.App
+	log         *logger.Log
+	userService user_management.UserContractService
+	mailService user_management.MailService
 }
 
-func NewUMHandler(userService user_management.UserContractService, app *fiber.App) *UserHandler {
+func NewUMHandler(app *fiber.App, log *logger.Log, user user_management.UserContractService, mail user_management.MailService) *UserHandler {
 	return &UserHandler{
-		userService: userService,
 		app:         app,
+		log:         log,
+		userService: user,
+		mailService: mail,
 	}
 }
 
@@ -28,25 +33,45 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 
 	var registerRequest user_management.UserRegisterRequest
 
+	err := c.BodyParser(&registerRequest)
+	if err != nil {
+		return utils.New(c).BadRequest(err.Error())
+	}
+
 	// validate user request
 	validate := utils.Validate(registerRequest)
 	if validate != nil {
 		return utils.New(c).Error(validate, fiber.StatusBadRequest)
 	}
 
-	err := c.BodyParser(&registerRequest)
-	if err != nil {
-		return utils.New(c).BadRequest(err.Error())
-	}
-
-	var customErr utils.Err
-
 	// call service
-	response, err := h.userService.Register(&registerRequest)
-	errors.As(err, &customErr)
+	err = h.userService.Register(&registerRequest)
 	if err != nil {
-		return utils.New(c).InternalServerError(customErr.Error())
+		h.log.InfoLog.Println(fmt.Sprintf("Error when register user: %v", err))
+		return utils.New(c).InternalServerError(err.Error())
 	}
 
-	return utils.New(c).Success("success", fiber.StatusOK, response)
+	data := struct {
+		Name string
+		Code string
+	}{
+		Name: registerRequest.FullName,
+		Code: utils.CodeVerification(),
+	}
+
+	dataTmplString, err := utils.ParseTemplate("public/template/email_tmpl.html", data)
+	if err != nil {
+		h.log.ErrorLog.Println(fmt.Sprintf("Error when parse template: %v", err))
+		return err
+	}
+
+	err = h.mailService.SendMailWithSmtp([]string{registerRequest.Email}, "Email Verification", dataTmplString)
+	if err != nil {
+		h.log.ErrorLog.Println(fmt.Sprintf("Error when send email: %v", err))
+		return err
+	}
+
+	h.log.InfoLog.Println("Email sent")
+
+	return utils.New(c).Success("success", fiber.StatusOK, nil)
 }
