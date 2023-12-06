@@ -8,9 +8,9 @@ import (
 
 type User struct {
 	ID                 string         `gorm:"PrimaryKey;size:50;not null;unique;<-:create"`
-	NumberPhone        string         `gorm:"size:20;not null;unique"`
-	Email              string         `gorm:"size:50;not null;unique"`
-	Password           string         `gorm:"size:255;not null"`
+	NumberPhone        string         `gorm:"size:20;unique"`
+	Email              string         `gorm:"size:50;unique"`
+	Password           string         `gorm:"size:255"`
 	VerificationStatus bool           `gorm:"default:false"`
 	CreatedAt          time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt          time.Time      `gorm:"autoUpdateTime"`

@@ -8,6 +8,7 @@ import (
 	"github.com/andrepriyanto10/server_favaa/pkg/cache"
 	"github.com/andrepriyanto10/server_favaa/utils"
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -26,6 +27,11 @@ func NewUserService(userRepo user_management.UserContractRepository) *UserServic
 func (s *UserService) Register(ctx context.Context, req *user_management.UserRegisterRequest, code *string) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
+
+	_, err := s.userRepo.FetchUserByEmail(ctx, req.Email)
+	if err == nil {
+		return errors.New("email already registered")
+	}
 
 	hashPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
@@ -57,7 +63,7 @@ func (s *UserService) VerifyUserRegister(ctx context.Context, code *user_managem
 
 	getDataCache, err := cache.Cache.Get("user")
 	if err != nil {
-		return errors.WithMessage(err, "failed to get data from dataCache")
+		return errors.WithMessage(err, "Code invalid")
 	}
 
 	var data struct {
@@ -82,6 +88,44 @@ func (s *UserService) VerifyUserRegister(ctx context.Context, code *user_managem
 	err = s.userRepo.UpdateDataUser(ctx, &data.Email)
 	if err != nil {
 		return errors.WithMessage(err, "failed to store data user")
+	}
+
+	return nil
+
+}
+
+func (s *UserService) Login(ctx context.Context, req *user_management.UserLoginRequest) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	user, err := s.userRepo.FetchUserByEmail(ctx, req.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("email is not registered")
+		} else {
+			return errors.Wrap(err, "failed to fetch user by email")
+		}
+	}
+
+	err = utils.ComparePassword(user.Password, req.Password)
+	if err != nil {
+		return errors.New("invalid email and password")
+	}
+
+	return nil
+}
+
+func (s *UserService) RecoveryPassword(ctx context.Context, email string) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	_, err := s.userRepo.FetchUserByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("credential not found")
+		} else {
+			return errors.Wrap(err, "failed to fetch user by email")
+		}
 	}
 
 	return nil

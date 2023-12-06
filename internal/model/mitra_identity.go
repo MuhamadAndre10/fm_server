@@ -8,10 +8,10 @@ import (
 
 type MitraIdentity struct {
 	MitraID           string              `gorm:"<-create,primaryKey;size:50;not null;unique"`
-	FirstName         string              `gorm:"size:50;not null"`
-	LastName          string              `gorm:"size:50;not null"`
-	Age               int                 `gorm:"size:3;not null"`
-	DateBirth         time.Time           `gorm:"not null"`
+	FirstName         string              `gorm:"size:50"`
+	LastName          string              `gorm:"size:50"`
+	Age               int                 `gorm:"size:3"`
+	DateBirth         time.Time           `gorm:"-"`
 	CreatedAt         time.Time           `gorm:"autoCreateTime"`
 	UpdatedAt         time.Time           `gorm:"autoUpdateTime"`
 	FastPay           []FastPay           `gorm:"foreignKey:MitraID;references:MitraID"`

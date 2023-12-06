@@ -48,3 +48,14 @@ func (u *UserRepository) UpdateDataUser(ctx context.Context, email *string) erro
 
 	return nil
 }
+
+func (u *UserRepository) FetchUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	var user model.User
+
+	err := u.DB.WithContext(ctx).Preload("MitraIdentity").Where("email = ?", email).Take(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

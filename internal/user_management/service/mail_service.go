@@ -1,22 +1,29 @@
 package service
 
 import (
+	"context"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"net/smtp"
+	"time"
 )
 
 type MailService struct {
-	env *viper.Viper
+	env     *viper.Viper
+	timeout time.Duration
 }
 
 func NewMailService(env *viper.Viper) *MailService {
 	return &MailService{
-		env: env,
+		env:     env,
+		timeout: time.Duration(4) * time.Second,
 	}
 }
 
-func (m *MailService) SendMailWithSmtp(to []string, subject, body string) error {
+func (m *MailService) SendMailWithSmtp(ctx context.Context, to []string, subject, body string) error {
+	ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	defer cancel()
+
 	user := "andrepriyanto95@gmail.com"
 	pass := m.env.GetString("MAIL_PASS")
 	host := m.env.GetString("MAIL_HOST")
@@ -37,6 +44,6 @@ func (m *MailService) SendMailWithSmtp(to []string, subject, body string) error 
 	return nil
 }
 
-func (m *MailService) SendMailWithSendGrid(to []string, subject, body string) error {
+func (m *MailService) SendMailWithSendGrid(ctx context.Context, to []string, subject, body string) error {
 	panic("implement me")
 }

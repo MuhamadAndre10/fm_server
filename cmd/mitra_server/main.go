@@ -49,7 +49,7 @@ func main() {
 	serviceUser := service.NewUserService(repoUser)
 	mailService := service.NewMailService(loadEnv)
 
-	userHandler := handler.NewUMHandler(app, customLog, serviceUser, mailService)
+	userHandler := handler.NewUMHandler(app, customLog, loadEnv, serviceUser, mailService)
 
 	router.InitRouter(router.ConfigRouter{
 		App:         app,

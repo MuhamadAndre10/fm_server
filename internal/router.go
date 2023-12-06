@@ -24,6 +24,8 @@ func InitRouter(cfg ConfigRouter) {
 	micro.Route("/auth", func(router fiber.Router) {
 		router.Post("/register", cfg.UserHandler.Register)
 		router.Post("/verify", cfg.UserHandler.VerifyUser)
+		router.Post("/login", cfg.UserHandler.Login)
+		router.Post("/get-otp", cfg.UserHandler.ForgotPassword)
 	})
 
 	micro.Use(func(c *fiber.Ctx) error {

@@ -15,3 +15,16 @@ type UserRegisterResponse struct {
 type CodeRequest struct {
 	Code string `json:"code,omitempty" validate:"required"`
 }
+
+type UserLoginRequest struct {
+	Email    string `json:"email,omitempty" validate:"required,email"`
+	Password string `json:"password,omitempty" validate:"required,min=8,max=32"`
+}
+
+type CredentialsResetPassReq struct {
+	Email string `json:"email,omitempty" validate:"required,email"`
+}
+
+type UpdatePassRequest struct {
+	Password string `json:"password,omitempty" validate:"required,min=8,max=32"`
+}
